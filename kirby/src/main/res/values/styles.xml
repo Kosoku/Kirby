@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Kirby.Modal" parent="Base.Theme.AppCompat.DialogWhenLarge">
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowAnimationStyle">@style/WindowAnimation</item>
+    </style>
+
+    <style name="WindowAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_up_bottom</item>
+        <item name="android:windowExitAnimation">@anim/slide_down_bottom</item>
+    </style>
+</resources>
