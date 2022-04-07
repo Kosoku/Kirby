@@ -16,8 +16,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         findViewById<TextView>(R.id.text_view).setDebounceOnClickListener {
-            ModalNavigationFragment.getInstance(FragmentA()).show(supportFragmentManager, UUID.randomUUID().toString())
-//            FragmentA.getModalInstance().show(supportFragmentManager, UUID.randomUUID().toString())
+//            ModalNavigationFragment.getInstance(FragmentA.getInstance("THIS IS A TEST")).show(supportFragmentManager, UUID.randomUUID().toString())
+            FragmentA.getModalInstance("THIS IS ANOTHER TEST").show(supportFragmentManager, UUID.randomUUID().toString())
         }
     }
 }

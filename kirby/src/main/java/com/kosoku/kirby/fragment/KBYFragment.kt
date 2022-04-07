@@ -73,9 +73,15 @@ abstract class KBYFragment : DialogFragment() {
         disposables.clear()
     }
 
-    protected fun getModalInstance(): KBYFragment {
+    protected fun getModalInstance(bundle: Bundle? = null): KBYFragment {
         val retval = this
-        retval.arguments = bundleOf(IS_MODAL_KEY to true)
+        retval.arguments = bundle?.apply { putBoolean(IS_MODAL_KEY, true) } ?: bundleOf(IS_MODAL_KEY to true)
+        return retval
+    }
+
+    protected fun getInstance(bundle: Bundle? = null): KBYFragment {
+        val retval = this
+        retval.arguments = bundle
         return retval
     }
 

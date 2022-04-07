@@ -39,6 +39,7 @@ open class ModalNavigationFragment : DialogFragment() {
             try {
                 rootFragment = parentFragmentManager.fragmentFactory.instantiate(ClassLoader.getSystemClassLoader(), fragmentName) as? KBYFragment
                 rootFragment?.let {
+                    it.arguments = arguments
                     pushFragment(it)
                 }
             } catch (e: Exception) {
@@ -144,7 +145,7 @@ open class ModalNavigationFragment : DialogFragment() {
 
         fun getInstance(rootFragment: KBYFragment): ModalNavigationFragment {
             val retval = ModalNavigationFragment().apply {
-                arguments = bundleOf(ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment.javaClass.name)
+                arguments = rootFragment.arguments?.apply { putString(ROOT_FRAGMENT_CLASS_NAME_KEY, rootFragment.javaClass.name) } ?: bundleOf(ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment.javaClass.name)
             }
             return retval
         }
