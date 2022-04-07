@@ -10,8 +10,9 @@ import com.kosoku.demo.databinding.FragmentABinding
 import com.kosoku.kirby.extension.setDebounceOnClickListener
 import com.kosoku.kirby.fragment.KBYFragment
 import timber.log.Timber
+import java.lang.ref.WeakReference
 
-class FragmentA : KBYFragment() {
+class FragmentB : KBYFragment() {
     private var passedValue: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,9 +30,7 @@ class FragmentA : KBYFragment() {
 
         (binding as? FragmentABinding)?.textView?.text = passedValue ?: "NO VALUE"
         (binding as? FragmentABinding)?.textView?.setDebounceOnClickListener {
-            navigationController?.get()?.let { navController ->
-                navController.pushFragment(FragmentB.getInstance("Fragment B"))
-            }
+            dismiss()
         }
 
         return binding?.root
@@ -39,13 +38,13 @@ class FragmentA : KBYFragment() {
 
     companion object {
         private const val PASSED_STRING_KEY = "PASSED_STRING_KEY"
-        fun getModalInstance(passedString: String): FragmentA {
+        fun getModalInstance(passedString: String): FragmentB {
             val bundle = bundleOf(PASSED_STRING_KEY to passedString)
-            return FragmentA().getModalInstance(bundle) as FragmentA
+            return FragmentB().getModalInstance(bundle) as FragmentB
         }
-        fun getInstance(passedString: String): FragmentA {
+        fun getInstance(passedString: String): FragmentB {
             val bundle = bundleOf(PASSED_STRING_KEY to passedString)
-            return FragmentA().getInstance(bundle) as FragmentA
+            return FragmentB().getInstance(bundle) as FragmentB
         }
     }
 }

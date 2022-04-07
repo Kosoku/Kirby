@@ -7,6 +7,7 @@ class AppFragmentFactory : FragmentFactory() {
     override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
         return when (className) {
             FragmentA::class.java.name -> FragmentA()
+            FragmentB::class.java.name -> FragmentB()
             else -> super.instantiate(classLoader, className)
         }
     }
