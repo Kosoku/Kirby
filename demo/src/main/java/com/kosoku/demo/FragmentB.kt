@@ -36,6 +36,11 @@ class FragmentB : KBYFragment() {
         return binding?.root
     }
 
+    override fun wilNavigateBack(closure: (() -> Unit)?) {
+        Timber.d("TEST: navigating back from fragment B")
+        super.wilDismiss(closure)
+    }
+
     companion object {
         private const val PASSED_STRING_KEY = "PASSED_STRING_KEY"
         fun getModalInstance(passedString: String): FragmentB {

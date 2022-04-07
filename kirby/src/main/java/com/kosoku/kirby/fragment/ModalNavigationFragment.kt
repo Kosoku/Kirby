@@ -1,5 +1,6 @@
 package com.kosoku.kirby.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -9,13 +10,21 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import com.kosoku.kirby.BuildConfig
 import com.kosoku.kirby.R
 import com.kosoku.kirby.databinding.FragmentModalNavigationBinding
 import com.kosoku.kirby.extension.setDebounceMenuOnClickListener
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.Observables
+import io.reactivex.rxjava3.kotlin.addTo
+import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.BehaviorSubject
+import timber.log.Timber
 import java.lang.Exception
 import java.lang.ref.WeakReference
 
@@ -23,8 +32,8 @@ import java.lang.ref.WeakReference
 open class ModalNavigationFragment : DialogFragment() {
     private val disposables: CompositeDisposable by lazy { CompositeDisposable() }
 
-    private lateinit var navController: NavController
-    private var currentFragment: KBYFragment? = null
+    private val currentFragment = BehaviorSubject.create<KBYFragment>()
+    private val currentPosition = BehaviorSubject.createDefault(0)
     private var binding: FragmentModalNavigationBinding? = null
 
     var rootFragment: KBYFragment? = null
@@ -48,6 +57,11 @@ open class ModalNavigationFragment : DialogFragment() {
         }
 
         childFragmentManager.addOnBackStackChangedListener {
+            childFragmentManager.fragments.lastOrNull()?.let {
+                postCurrentFragment(it)
+            }
+            val stackCount = childFragmentManager.backStackEntryCount
+            currentPosition.onNext(stackCount)
             updateNavBar()
         }
     }
@@ -63,6 +77,8 @@ open class ModalNavigationFragment : DialogFragment() {
             pushFragment(root)
         }
 
+        binding?.toolbar?.setNavigationOnClickListener { backOrDismiss() }
+
         return binding?.root
     }
 
@@ -75,6 +91,17 @@ open class ModalNavigationFragment : DialogFragment() {
             }
             false
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        childFragmentManager.addFragmentOnAttachListener { _, fragment ->
+            postCurrentFragment(fragment)
+        }
+    }
+
+    fun observeCurrentFragmentWithPosition(): Observable<Pair<Int, KBYFragment>> {
+        return Observables.zip(currentPosition, currentFragment)
     }
 
     fun pushFragment(fragment: KBYFragment) {
@@ -90,8 +117,29 @@ open class ModalNavigationFragment : DialogFragment() {
         }
     }
 
+    private fun postCurrentFragment(fragment: Fragment) {
+        if (fragment == currentFragment.value) { return }
+        if (fragment is KBYFragment) {
+            currentFragment.onNext(fragment)
+        }
+    }
+
     private fun backOrDismiss() {
         var isDismissType: Boolean = childFragmentManager.backStackEntryCount <= 1
+
+        currentFragment.value?.let { fragment ->
+            if (fragment.hideNavigationIcon) { return }
+            if (fragment.replaceBackButtonWithCloseButton) {
+                isDismissType = true
+            }
+            if (isDismissType) {
+                fragment.wilDismiss { handleDismiss() }
+            } else {
+                fragment.wilNavigateBack { handleBack() }
+            }
+
+            return
+        }
 
         if (isDismissType) {
             handleDismiss()
@@ -116,9 +164,13 @@ open class ModalNavigationFragment : DialogFragment() {
             binding?.toolbar?.navigationIcon = when (currentFragment.hideNavigationIcon) {
                 true -> null
                 else -> {
-                    when (currentFragment.replaceBackButtonWithCloseButton) {
-                        true -> ResourcesCompat.getDrawable(resources, R.drawable.ic_close, null)
-                        false -> ResourcesCompat.getDrawable(resources, R.drawable.ic_back, null)
+                    if (childFragmentManager.backStackEntryCount > 1) {
+                        when (currentFragment.replaceBackButtonWithCloseButton) {
+                            true -> ResourcesCompat.getDrawable(resources, R.drawable.ic_close, null)
+                            false -> ResourcesCompat.getDrawable(resources, R.drawable.ic_back, null)
+                        }
+                    } else {
+                        ResourcesCompat.getDrawable(resources, R.drawable.ic_close, null)
                     }
                 }
             }
@@ -137,7 +189,7 @@ open class ModalNavigationFragment : DialogFragment() {
     }
 
     private fun handleBack() {
-
+        childFragmentManager.popBackStack()
     }
 
     companion object {

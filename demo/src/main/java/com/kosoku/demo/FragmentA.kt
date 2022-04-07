@@ -37,6 +37,11 @@ class FragmentA : KBYFragment() {
         return binding?.root
     }
 
+    override fun wilDismiss(closure: (() -> Unit)?) {
+        Timber.d("TEST: will dismiss Fragment A")
+        super.wilDismiss(closure)
+    }
+
     companion object {
         private const val PASSED_STRING_KEY = "PASSED_STRING_KEY"
         fun getModalInstance(passedString: String): FragmentA {
