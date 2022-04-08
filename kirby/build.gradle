@@ -14,7 +14,7 @@ ext {
     _groupId = "com.kosoku"
     _artifactId = "kirby"
     _versionCode = generateVersionCode()
-    _versionName = "0.0.1"
+    _versionName = "0.0.1-alpha01"
 
     _libraryName = "Kirby"
     _libraryDescription = "A UI library for native Android mobile development"
@@ -106,7 +106,7 @@ afterEvaluate {
         repositories {
             maven {
                 name = "GitHubPackages"
-                url = url("https://maven.pkg.github.com/Kosoku/Kirby")
+                url = uri("https://maven.pkg.github.com/Kosoku/Kirby")
                 credentials {
                     username = System.getenv("KOSOKU_GPR_USER")
                     password = System.getenv("KOSOKU_GPR_TOKEN")
