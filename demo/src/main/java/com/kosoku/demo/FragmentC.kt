@@ -12,7 +12,7 @@ import com.kosoku.kirby.fragment.KBYFragment
 import timber.log.Timber
 import java.lang.ref.WeakReference
 
-class FragmentB : KBYFragment() {
+class FragmentC : KBYFragment() {
     private var passedValue: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +31,7 @@ class FragmentB : KBYFragment() {
         (binding as? FragmentABinding)?.textView?.text = passedValue ?: "NO VALUE"
         (binding as? FragmentABinding)?.textView?.setDebounceOnClickListener {
             navigationController?.get()?.let { navController ->
-                navController.pushFragment(FragmentC.getInstance("Fragment C"))
+                navController.popToRootFragment()
             }
         }
 
@@ -39,19 +39,19 @@ class FragmentB : KBYFragment() {
     }
 
     override fun wilNavigateBack(closure: (() -> Unit)?) {
-        Timber.d("TEST: navigating back from fragment B")
+        Timber.d("TEST: navigating back from fragment C")
         super.wilDismiss(closure)
     }
 
     companion object {
         private const val PASSED_STRING_KEY = "PASSED_STRING_KEY"
-        fun getModalInstance(passedString: String): FragmentB {
+        fun getModalInstance(passedString: String): FragmentC {
             val bundle = bundleOf(PASSED_STRING_KEY to passedString)
-            return FragmentB().getModalInstance(bundle) as FragmentB
+            return FragmentC().getModalInstance(bundle) as FragmentC
         }
-        fun getInstance(passedString: String): FragmentB {
+        fun getInstance(passedString: String): FragmentC {
             val bundle = bundleOf(PASSED_STRING_KEY to passedString)
-            return FragmentB().getInstance(bundle) as FragmentB
+            return FragmentC().getInstance(bundle) as FragmentC
         }
     }
 }

@@ -20,6 +20,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Observables
 import io.reactivex.rxjava3.subjects.BehaviorSubject
+import timber.log.Timber
 import java.lang.Exception
 import java.lang.ref.WeakReference
 
@@ -133,6 +134,15 @@ open class NavigationFragment : DialogFragment() {
                     commit()
                 }
         }
+    }
+
+    fun popToIdentifier(identifier: String) {
+        childFragmentManager.popBackStack(identifier, 0)
+    }
+
+    fun popToRootFragment() {
+        Timber.d("TEST: rootFragment ${rootFragment?.backstackIdentifier}")
+        childFragmentManager.popBackStack(rootFragment?.backstackIdentifier, 0)
     }
 
     private fun postCurrentFragment(fragment: Fragment) {

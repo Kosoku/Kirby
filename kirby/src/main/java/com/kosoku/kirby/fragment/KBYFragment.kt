@@ -12,6 +12,7 @@ import com.kosoku.kirby.BuildConfig
 import com.kosoku.kirby.R
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.lang.ref.WeakReference
+import java.util.*
 
 abstract class KBYFragment : DialogFragment() {
     private var isModal: Boolean = false
@@ -26,7 +27,7 @@ abstract class KBYFragment : DialogFragment() {
 
     open val replaceBackButtonWithCloseButton: Boolean = false
 
-    open val backstackIdentifier: String? = null
+    open val backstackIdentifier: String = UUID.randomUUID().toString()
 
     open val menuResourceId: Int = NO_OPTIONS_MENU
 
