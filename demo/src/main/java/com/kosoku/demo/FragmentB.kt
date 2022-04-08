@@ -9,8 +9,6 @@ import androidx.databinding.DataBindingUtil
 import com.kosoku.demo.databinding.FragmentABinding
 import com.kosoku.kirby.extension.setDebounceOnClickListener
 import com.kosoku.kirby.fragment.KBYFragment
-import timber.log.Timber
-import java.lang.ref.WeakReference
 
 class FragmentB : KBYFragment() {
     private var passedValue: String? = null
@@ -28,19 +26,14 @@ class FragmentB : KBYFragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_a, container, false)
 
-        (binding as? FragmentABinding)?.textView?.text = passedValue ?: "NO VALUE"
-        (binding as? FragmentABinding)?.textView?.setDebounceOnClickListener {
-            navigationController?.get()?.let { navController ->
-                navController.pushFragment(FragmentC.getInstance("Fragment C"))
+        (binding as? FragmentABinding)?.let { viewBinding ->
+            viewBinding.textView.text = (navigationController?.get() as? TestNavigationFragment)?.data ?: "NO DATA"
+            viewBinding.textView.setDebounceOnClickListener {
+                navigationController?.get()?.pushFragment(FragmentC.getInstance("Fragment C"))
             }
         }
 
         return binding?.root
-    }
-
-    override fun wilNavigateBack(closure: (() -> Unit)?) {
-        Timber.d("TEST: navigating back from fragment B")
-        super.wilDismiss(closure)
     }
 
     companion object {

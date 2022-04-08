@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
 //            }
 
         binding.containerView.setDebounceOnClickListener {
-            NavigationFragment.getModalInstance(FragmentA.getInstance("Fragment A")).show(supportFragmentManager, UUID.randomUUID().toString())
+            TestNavigationFragment.getModalInstance(FragmentA.getInstance("Fragment A")).show(supportFragmentManager, UUID.randomUUID().toString())
 //            FragmentA.getModalInstance("THIS IS ANOTHER TEST").show(supportFragmentManager, UUID.randomUUID().toString())
         }
     }

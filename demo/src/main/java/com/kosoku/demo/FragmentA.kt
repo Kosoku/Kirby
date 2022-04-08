@@ -30,16 +30,12 @@ class FragmentA : KBYFragment() {
         (binding as? FragmentABinding)?.textView?.text = passedValue ?: "NO VALUE"
         (binding as? FragmentABinding)?.textView?.setDebounceOnClickListener {
             navigationController?.get()?.let { navController ->
+                (navController as? TestNavigationFragment)?.data = "Data from Fragment A"
                 navController.pushFragment(FragmentB.getInstance("Fragment B"))
             }
         }
 
         return binding?.root
-    }
-
-    override fun wilDismiss(closure: (() -> Unit)?) {
-        Timber.d("TEST: will dismiss Fragment A")
-        super.wilDismiss(closure)
     }
 
     companion object {

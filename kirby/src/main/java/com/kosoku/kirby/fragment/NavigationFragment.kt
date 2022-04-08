@@ -20,7 +20,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Observables
 import io.reactivex.rxjava3.subjects.BehaviorSubject
-import timber.log.Timber
 import java.lang.Exception
 import java.lang.ref.WeakReference
 
@@ -50,7 +49,6 @@ open class NavigationFragment : DialogFragment() {
                 rootFragment = parentFragmentManager.fragmentFactory.instantiate(ClassLoader.getSystemClassLoader(), fragmentName) as? KBYFragment
                 rootFragment?.let {
                     it.arguments = arguments
-                    pushFragment(it)
                 }
             } catch (e: Exception) {
                 dismiss()
@@ -124,6 +122,7 @@ open class NavigationFragment : DialogFragment() {
     }
 
     fun pushFragment(fragment: KBYFragment) {
+        fragment.navigationController = WeakReference(this@NavigationFragment)
         val identifier = fragment.backstackIdentifier
         binding?.contentContainer?.id?.let { container ->
             childFragmentManager.beginTransaction()
@@ -141,7 +140,6 @@ open class NavigationFragment : DialogFragment() {
     }
 
     fun popToRootFragment() {
-        Timber.d("TEST: rootFragment ${rootFragment?.backstackIdentifier}")
         childFragmentManager.popBackStack(rootFragment?.backstackIdentifier, 0)
     }
 
@@ -185,7 +183,6 @@ open class NavigationFragment : DialogFragment() {
                 this@NavigationFragment.binding?.toolbar?.menu?.let { menu ->
                     configureOptionsMenu(menu, this@NavigationFragment.binding?.root?.context)
                 }
-                navigationController = WeakReference(this@NavigationFragment)
             }
 
             binding?.toolbar?.title = currentFragment.title
@@ -225,6 +222,26 @@ open class NavigationFragment : DialogFragment() {
     private fun handleBack() {
         if (childFragmentManager.backStackEntryCount > 1) {
             childFragmentManager.popBackStack()
+        }
+    }
+
+    protected fun getModalInstance(rootFragment: KBYFragment): NavigationFragment {
+        return this.apply {
+            arguments = rootFragment.arguments?.apply {
+                putBoolean(IS_MODAL_NAVIGATION_FRAGMENT_KEY, true)
+                putString(ROOT_FRAGMENT_CLASS_NAME_KEY, rootFragment.javaClass.name)
+            } ?: bundleOf(
+                IS_MODAL_NAVIGATION_FRAGMENT_KEY to true,
+                ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment.javaClass.name
+            )
+        }
+    }
+
+    protected fun getInstance(rootFragment: KBYFragment): NavigationFragment {
+        return this.apply {
+            arguments = rootFragment.arguments?.apply {
+                putString(ROOT_FRAGMENT_CLASS_NAME_KEY, rootFragment.javaClass.name)
+            } ?: bundleOf(ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment.javaClass.name)
         }
     }
 
