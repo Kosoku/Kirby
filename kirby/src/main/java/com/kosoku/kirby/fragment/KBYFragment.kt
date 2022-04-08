@@ -7,16 +7,14 @@ import android.view.MenuItem
 import androidx.core.os.bundleOf
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import com.kosoku.kirby.BuildConfig
 import com.kosoku.kirby.R
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import timber.log.Timber
 import java.lang.ref.WeakReference
 
 abstract class KBYFragment : DialogFragment() {
-    protected var isModal: Boolean = false
+    private var isModal: Boolean = false
 
     open val disposables: CompositeDisposable by lazy { CompositeDisposable() }
 
@@ -36,7 +34,7 @@ abstract class KBYFragment : DialogFragment() {
 
     open var binding: ViewDataBinding? = null
 
-    open var navigationController: WeakReference<ModalNavigationFragment>? = null
+    open var navigationController: WeakReference<NavigationFragment>? = null
 
     open fun configureOptionsMenu(menu: Menu, context: Context? = null) {}
 
@@ -62,7 +60,7 @@ abstract class KBYFragment : DialogFragment() {
         if (isModal) {
             super.dismiss()
         } else {
-            (parentFragment as? DialogFragment)?.dismiss()
+            (parentFragment as? NavigationFragment)?.dismiss()
         }
     }
 
