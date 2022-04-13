@@ -14,7 +14,7 @@ ext {
     _groupId = "com.kosoku"
     _artifactId = "kirby"
     _versionCode = generateVersionCode()
-    _versionName = "0.0.1-alpha02"
+    _versionName = "0.0.1-alpha03"
 
     _libraryName = "Kirby"
     _libraryDescription = "A UI library for native Android mobile development"
@@ -54,7 +54,7 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.1'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.2'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
     api 'androidx.core:core-ktx:1.7.0'

@@ -25,8 +25,7 @@ import java.lang.ref.WeakReference
 
 //@AndroidEntryPoint
 open class NavigationFragment : DialogFragment() {
-    private val disposables: CompositeDisposable by lazy { CompositeDisposable() }
-    private var isModal: Boolean = false
+    protected var isModal: Boolean = false
 
     private val currentFragment = BehaviorSubject.create<KBYFragment>()
     private val currentPosition = BehaviorSubject.createDefault(0)
@@ -246,8 +245,8 @@ open class NavigationFragment : DialogFragment() {
     }
 
     companion object {
-        private const val ROOT_FRAGMENT_CLASS_NAME_KEY = "${BuildConfig.LIBRARY_PACKAGE_NAME}.rootFragmentClassNameKey"
-        private const val IS_MODAL_NAVIGATION_FRAGMENT_KEY = "${BuildConfig.LIBRARY_PACKAGE_NAME}.isModalNavigationFragmentKey"
+        const val ROOT_FRAGMENT_CLASS_NAME_KEY = "${BuildConfig.LIBRARY_PACKAGE_NAME}.rootFragmentClassNameKey"
+        const val IS_MODAL_NAVIGATION_FRAGMENT_KEY = "${BuildConfig.LIBRARY_PACKAGE_NAME}.isModalNavigationFragmentKey"
 
         fun getModalInstance(rootFragment: KBYFragment): NavigationFragment {
             val retval = NavigationFragment().apply {

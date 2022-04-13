@@ -54,6 +54,9 @@ abstract class KBYFragment : DialogFragment() {
         if (isModal) {
             setStyle(STYLE_NORMAL, R.style.Theme_Kirby_Modal)
             isCancelable = false
+            showsDialog = true
+        } else {
+            showsDialog = false
         }
     }
 
