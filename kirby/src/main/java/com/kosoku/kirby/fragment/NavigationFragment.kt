@@ -134,6 +134,10 @@ open class NavigationFragment : DialogFragment() {
         }
     }
 
+    fun pop() {
+        childFragmentManager.popBackStack()
+    }
+
     fun popToIdentifier(identifier: String) {
         childFragmentManager.popBackStack(identifier, 0)
     }
