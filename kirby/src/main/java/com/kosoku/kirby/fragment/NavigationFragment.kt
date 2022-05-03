@@ -72,7 +72,9 @@ open class NavigationFragment : DialogFragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_navigation, container, false)
 
         rootFragment?.let { root ->
-            pushFragment(root)
+            if (childFragmentManager.fragments.size == 0) {
+                pushFragment(root)
+            }
         }
 
         binding?.toolbar?.setNavigationOnClickListener { backOrDismiss() }
