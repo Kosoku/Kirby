@@ -15,7 +15,7 @@ import java.lang.ref.WeakReference
 import java.util.*
 
 abstract class KBYFragment : DialogFragment() {
-    private var isModal: Boolean = false
+    protected var isModal: Boolean = false
 
     open val disposables: CompositeDisposable by lazy { CompositeDisposable() }
 
