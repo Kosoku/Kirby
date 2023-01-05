@@ -32,7 +32,7 @@ open class NavigationFragment : DialogFragment() {
     private var binding: FragmentNavigationBinding? = null
 
     var rootFragment: KBYFragment? = null
-        private set
+        protected set
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,14 +43,16 @@ open class NavigationFragment : DialogFragment() {
             isCancelable = false
         }
 
-        (arguments?.get(ROOT_FRAGMENT_CLASS_NAME_KEY) as? String)?.let { fragmentName ->
-            try {
-                rootFragment = parentFragmentManager.fragmentFactory.instantiate(ClassLoader.getSystemClassLoader(), fragmentName) as? KBYFragment
-                rootFragment?.let {
-                    it.arguments = arguments
+        arguments?.let { args ->
+            args.getString(ROOT_FRAGMENT_CLASS_NAME_KEY)?.let { fragmentName ->
+                try {
+                    rootFragment = parentFragmentManager.fragmentFactory.instantiate(ClassLoader.getSystemClassLoader(), fragmentName) as? KBYFragment
+                    rootFragment?.let {
+                        it.arguments = arguments
+                    }
+                } catch (e: Exception) {
+                    dismiss()
                 }
-            } catch (e: Exception) {
-                dismiss()
             }
         }
 

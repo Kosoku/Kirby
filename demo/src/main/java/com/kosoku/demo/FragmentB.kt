@@ -9,6 +9,8 @@ import androidx.databinding.DataBindingUtil
 import com.kosoku.demo.databinding.FragmentABinding
 import com.kosoku.kirby.extension.setDebounceOnClickListener
 import com.kosoku.kirby.fragment.KBYFragment
+import com.kosoku.kirby.fragment.NavigationFragment
+import java.util.*
 
 class FragmentB : KBYFragment() {
     private var passedValue: String? = null
@@ -27,11 +29,10 @@ class FragmentB : KBYFragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_a, container, false)
 
         (binding as? FragmentABinding)?.let { viewBinding ->
-            viewBinding.textView.text = (navigationController?.get() as? TestNavigationFragment)?.data ?: "NO DATA"
-            viewBinding.textView.setDebounceOnClickListener {
-                navigationController?.get()?.pop()
-//                navigationController?.get()?.pushFragment(FragmentC.getInstance("Fragment C"))
-            }
+            viewBinding.textView.text = passedValue
+//            viewBinding.textView.setDebounceOnClickListener {
+//                NavigationFragment.getModalInstance(FragmentA.getInstance("Fragment A")).show(childFragmentManager, UUID.randomUUID().toString())
+//            }
         }
 
         return binding?.root

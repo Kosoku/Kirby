@@ -7,9 +7,12 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import com.kosoku.demo.databinding.FragmentABinding
+import com.kosoku.kirby.extension.presentingFragment
 import com.kosoku.kirby.extension.setDebounceOnClickListener
 import com.kosoku.kirby.fragment.KBYFragment
+import com.kosoku.kirby.fragment.NavigationFragment
 import timber.log.Timber
+import java.util.UUID
 
 class FragmentA : KBYFragment() {
     private var passedValue: String? = null
@@ -27,12 +30,9 @@ class FragmentA : KBYFragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_a, container, false)
 
-        (binding as? FragmentABinding)?.textView?.text = passedValue ?: "NO VALUE"
+        (binding as? FragmentABinding)?.textView?.text = "Presented by: ${this.presentingFragment()?.javaClass?.name}"
         (binding as? FragmentABinding)?.textView?.setDebounceOnClickListener {
-            navigationController?.get()?.let { navController ->
-                (navController as? TestNavigationFragment)?.data = "Data from Fragment A"
-                navController.pushFragment(FragmentB.getInstance("Fragment B"))
-            }
+            NavigationFragment.getModalInstance(FragmentA.getInstance("Fragment A")).show(childFragmentManager, UUID.randomUUID().toString())
         }
 
         return binding?.root
