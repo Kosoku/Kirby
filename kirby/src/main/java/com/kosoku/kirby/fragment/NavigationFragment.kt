@@ -12,12 +12,12 @@ import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.kosoku.kirby.BuildConfig
 import com.kosoku.kirby.R
 import com.kosoku.kirby.databinding.FragmentNavigationBinding
 import com.kosoku.kirby.extension.setDebounceMenuOnClickListener
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.Observables
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import java.lang.Exception
@@ -27,12 +27,18 @@ import java.lang.ref.WeakReference
 open class NavigationFragment : DialogFragment() {
     protected var isModal: Boolean = false
 
-    private val currentFragment = BehaviorSubject.create<KBYFragment>()
-    private val currentPosition = BehaviorSubject.createDefault(0)
+    private val _currentFragment = BehaviorSubject.create<KBYFragment>()
+    private val _currentPosition = BehaviorSubject.createDefault(0)
     private var binding: FragmentNavigationBinding? = null
 
     var rootFragment: KBYFragment? = null
         protected set
+
+    var fragments: List<KBYFragment>
+        get() = childFragmentManager.fragments.toList().filterIsInstance(KBYFragment::class.java)
+        set(value) {
+            replaceFragments(value)
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +67,7 @@ open class NavigationFragment : DialogFragment() {
                 postCurrentFragment(it)
             }
             val stackCount = childFragmentManager.backStackEntryCount
-            currentPosition.onNext(stackCount)
+            _currentPosition.onNext(stackCount)
             updateNavBar()
         }
     }
@@ -121,16 +127,23 @@ open class NavigationFragment : DialogFragment() {
     }
 
     fun observeCurrentFragmentWithPosition(): Observable<Pair<Int, KBYFragment>> {
-        return Observables.zip(currentPosition, currentFragment)
+        return Observables.zip(_currentPosition, _currentFragment)
     }
 
-    fun pushFragment(fragment: KBYFragment) {
+    fun pushFragment(fragment: KBYFragment, animated: Boolean = true) {
         fragment.navigationController = WeakReference(this@NavigationFragment)
         val identifier = fragment.backstackIdentifier
         binding?.contentContainer?.id?.let { container ->
             childFragmentManager.beginTransaction()
                 .apply {
-                    setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
+                    if (animated) {
+                        setCustomAnimations(
+                            R.anim.slide_in_right,
+                            R.anim.slide_out_left,
+                            R.anim.slide_in_left,
+                            R.anim.slide_out_right
+                        )
+                    }
                     replace(container, fragment)
                     addToBackStack(identifier)
                     commit()
@@ -150,17 +163,24 @@ open class NavigationFragment : DialogFragment() {
         childFragmentManager.popBackStack(rootFragment?.backstackIdentifier, 0)
     }
 
+    private fun replaceFragments(fragments: List<KBYFragment>) {
+        childFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        for (fragment in fragments) {
+            pushFragment(fragment, false)
+        }
+    }
+
     private fun postCurrentFragment(fragment: Fragment) {
-        if (fragment == currentFragment.value) { return }
+        if (fragment == _currentFragment.value) { return }
         if (fragment is KBYFragment) {
-            currentFragment.onNext(fragment)
+            _currentFragment.onNext(fragment)
         }
     }
 
     private fun backOrDismiss() {
         var isDismissType: Boolean = childFragmentManager.backStackEntryCount <= 1 && isModal
 
-        currentFragment.value?.let { fragment ->
+        _currentFragment.value?.let { fragment ->
             if (fragment.hideNavigationIcon) { return }
             if (fragment.replaceBackButtonWithCloseButton && isModal) {
                 isDismissType = true
@@ -232,23 +252,23 @@ open class NavigationFragment : DialogFragment() {
         }
     }
 
-    protected fun getModalInstance(rootFragment: KBYFragment): NavigationFragment {
+    protected fun getModalInstance(rootFragment: KBYFragment?): NavigationFragment {
         return this.apply {
-            arguments = rootFragment.arguments?.apply {
+            arguments = rootFragment?.arguments?.apply {
                 putBoolean(IS_MODAL_NAVIGATION_FRAGMENT_KEY, true)
                 putString(ROOT_FRAGMENT_CLASS_NAME_KEY, rootFragment.javaClass.name)
             } ?: bundleOf(
                 IS_MODAL_NAVIGATION_FRAGMENT_KEY to true,
-                ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment.javaClass.name
+                ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment?.javaClass?.name
             )
         }
     }
 
-    protected fun getInstance(rootFragment: KBYFragment): NavigationFragment {
+    protected fun getInstance(rootFragment: KBYFragment?): NavigationFragment {
         return this.apply {
-            arguments = rootFragment.arguments?.apply {
+            arguments = rootFragment?.arguments?.apply {
                 putString(ROOT_FRAGMENT_CLASS_NAME_KEY, rootFragment.javaClass.name)
-            } ?: bundleOf(ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment.javaClass.name)
+            } ?: bundleOf(ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment?.javaClass?.name)
         }
     }
 
@@ -256,24 +276,24 @@ open class NavigationFragment : DialogFragment() {
         const val ROOT_FRAGMENT_CLASS_NAME_KEY = "${BuildConfig.LIBRARY_PACKAGE_NAME}.rootFragmentClassNameKey"
         const val IS_MODAL_NAVIGATION_FRAGMENT_KEY = "${BuildConfig.LIBRARY_PACKAGE_NAME}.isModalNavigationFragmentKey"
 
-        fun getModalInstance(rootFragment: KBYFragment): NavigationFragment {
+        fun getModalInstance(rootFragment: KBYFragment?): NavigationFragment {
             val retval = NavigationFragment().apply {
-                arguments = rootFragment.arguments?.apply {
+                arguments = rootFragment?.arguments?.apply {
                     putBoolean(IS_MODAL_NAVIGATION_FRAGMENT_KEY, true)
                     putString(ROOT_FRAGMENT_CLASS_NAME_KEY, rootFragment.javaClass.name)
                 } ?: bundleOf(
                     IS_MODAL_NAVIGATION_FRAGMENT_KEY to true,
-                    ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment.javaClass.name
+                    ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment?.javaClass?.name
                 )
             }
             return retval
         }
 
-        fun getInstance(rootFragment: KBYFragment): NavigationFragment {
+        fun getInstance(rootFragment: KBYFragment?): NavigationFragment {
             val retval = NavigationFragment().apply {
-                arguments = rootFragment.arguments?.apply {
+                arguments = rootFragment?.arguments?.apply {
                     putString(ROOT_FRAGMENT_CLASS_NAME_KEY, rootFragment.javaClass.name)
-                } ?: bundleOf(ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment.javaClass.name)
+                } ?: bundleOf(ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment?.javaClass?.name)
             }
             return retval
         }

@@ -10,6 +10,7 @@ import com.kosoku.demo.databinding.FragmentABinding
 import com.kosoku.kirby.extension.setDebounceOnClickListener
 import com.kosoku.kirby.fragment.KBYFragment
 import com.kosoku.kirby.fragment.NavigationFragment
+import timber.log.Timber
 import java.util.*
 
 class FragmentB : KBYFragment() {
@@ -21,6 +22,11 @@ class FragmentB : KBYFragment() {
         passedValue = arguments?.getString(PASSED_STRING_KEY)
     }
 
+    override fun onStart() {
+        super.onStart()
+        Timber.d("DEBUG: Fragment B onStart called")
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -30,9 +36,9 @@ class FragmentB : KBYFragment() {
 
         (binding as? FragmentABinding)?.let { viewBinding ->
             viewBinding.textView.text = passedValue
-//            viewBinding.textView.setDebounceOnClickListener {
-//                NavigationFragment.getModalInstance(FragmentA.getInstance("Fragment A")).show(childFragmentManager, UUID.randomUUID().toString())
-//            }
+            viewBinding.textView.setDebounceOnClickListener {
+                navigationController?.get()?.pushFragment(FragmentC.getInstance("Fragment C"))
+            }
         }
 
         return binding?.root
