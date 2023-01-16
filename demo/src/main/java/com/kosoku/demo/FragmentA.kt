@@ -37,7 +37,7 @@ class FragmentA : KBYFragment() {
 
         (binding as? FragmentABinding)?.textView?.text = passedValue
         (binding as? FragmentABinding)?.textView?.setDebounceOnClickListener {
-            navigationController?.get()?.pushFragment(FragmentB.getInstance("Fragment B"))
+            navigationController?.get()?.pushFragment(FragmentC.getInstance("Fragment C"))
         }
 
         return binding?.root

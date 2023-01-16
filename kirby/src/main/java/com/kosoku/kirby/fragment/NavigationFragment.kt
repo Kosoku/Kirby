@@ -25,7 +25,8 @@ import java.lang.ref.WeakReference
 
 //@AndroidEntryPoint
 open class NavigationFragment : DialogFragment() {
-    protected var isModal: Boolean = false
+    var isModal: Boolean = false
+        protected set
 
     private val _currentFragment = BehaviorSubject.create<KBYFragment>()
     private val _currentPosition = BehaviorSubject.createDefault(0)
@@ -168,6 +169,7 @@ open class NavigationFragment : DialogFragment() {
         for (fragment in fragments) {
             pushFragment(fragment, false)
         }
+        rootFragment = fragments.firstOrNull()
     }
 
     private fun postCurrentFragment(fragment: Fragment) {

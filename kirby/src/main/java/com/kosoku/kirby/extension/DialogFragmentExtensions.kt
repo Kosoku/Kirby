@@ -23,7 +23,7 @@ fun DialogFragment.presentingFragment(): Fragment? {
             retval
         }
     } else {
-        if (retval is NavigationFragment) {
+        if (retval is NavigationFragment && !retval.isModal) {
             retval.presentingFragment()
         } else {
             retval

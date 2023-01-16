@@ -37,7 +37,7 @@ class FragmentB : KBYFragment() {
         (binding as? FragmentABinding)?.let { viewBinding ->
             viewBinding.textView.text = passedValue
             viewBinding.textView.setDebounceOnClickListener {
-                navigationController?.get()?.pushFragment(FragmentC.getInstance("Fragment C"))
+                navigationController?.get()?.popToRootFragment()
             }
         }
 

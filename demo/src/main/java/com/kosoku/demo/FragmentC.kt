@@ -37,7 +37,8 @@ class FragmentC : KBYFragment() {
         (binding as? FragmentABinding)?.textView?.setDebounceOnClickListener {
             navigationController?.get()?.let { navController ->
                 navController.fragments = listOf(
-                    FragmentA.getInstance("Fragment A")
+                    FragmentA.getInstance("Fragment A"),
+                    FragmentB.getInstance("Fragment B"),
                 )
             }
         }
