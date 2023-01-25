@@ -19,15 +19,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-//        val rootFragment = NavigationFragment.getInstance(FragmentB.getInstance("Fragment B"))
-//        supportFragmentManager.beginTransaction()
-//            .apply {
-//                replace(binding.containerView.id, rootFragment)
-//                commit()
-//            }
+        val rootFragment = NavigationFragment.getInstance(FragmentC.getInstance("Fragment C"))
+        supportFragmentManager.beginTransaction()
+            .apply {
+                replace(binding.containerView.id, rootFragment)
+                commit()
+            }
 
         binding.containerView.setDebounceOnClickListener {
-            NavigationFragment.getModalInstance(FragmentA.getInstance("Fragment A")).show(supportFragmentManager, UUID.randomUUID().toString())
+            CustomNavigationFragment.getModalInstance(FragmentA.getInstance("Fragment A"), "This is a test").show(supportFragmentManager, UUID.randomUUID().toString())
         }
     }
 }

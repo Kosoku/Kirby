@@ -44,7 +44,7 @@ class FragmentA : KBYFragment() {
     }
 
     companion object {
-        private const val PASSED_STRING_KEY = "PASSED_STRING_KEY"
+        private const val PASSED_STRING_KEY = "PASSED_STRING_KEY.FragmentA"
         fun getModalInstance(passedString: String): FragmentA {
             val bundle = bundleOf(PASSED_STRING_KEY to passedString)
             return FragmentA().getModalInstance(bundle) as FragmentA

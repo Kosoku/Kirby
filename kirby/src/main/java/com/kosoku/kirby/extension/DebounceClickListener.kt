@@ -5,6 +5,13 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 
+/**
+ * View click listener that adds a debounce interval (default 1000 milliseconds) to prevent
+ * accidental double taps
+ *
+ * @param debounceInterval number of milliseconds to pause before accepting the next click event
+ * @param onclickDebounce the closure to invoke once the click event is accepted
+ */
 class DebounceOnClickListener constructor(
     private val debounceInterval: Long = 1000,
     private val onclickDebounce: (View) -> Unit
@@ -21,6 +28,13 @@ class DebounceOnClickListener constructor(
     }
 }
 
+/**
+ * Menu item click listener that adds a debounce interval (default 1000 milliseconds) to prevent
+ * accidental double taps
+ *
+ * @param debounceInterval number of milliseconds to pause before accepting the next click event
+ * @param onclickDebounce the closure to invoke once the click event is accepted
+ */
 class DebounceMenuOnClickListener constructor(
     private val debounceInterval: Long = 1000,
     private val onclickDebounce: (MenuItem) -> Boolean
@@ -36,7 +50,12 @@ class DebounceMenuOnClickListener constructor(
         return onclickDebounce(item)
     }
 }
-
+/**
+ * Click listener that adds a debounce interval (default 1000 milliseconds) to prevent accidental double taps
+ *
+ * @param debounceInterval number of milliseconds to pause before accepting the next click event
+ * @param onclickDebounce the closure to invoke once the click event is accepted
+ */
 class DebounceOnClick constructor(
     private val debounceInterval: Long = 1000,
     private val onclickDebounce: () -> Unit

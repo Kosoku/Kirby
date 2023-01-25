@@ -4,6 +4,9 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.kosoku.kirby.fragment.NavigationFragment
 
+/**
+ * Extension on [DialogFragment] to get the fragment it was presented from
+ */
 fun DialogFragment.presentingFragment(): Fragment? {
     var retval = this.parentFragment
     return if (retval == null) {

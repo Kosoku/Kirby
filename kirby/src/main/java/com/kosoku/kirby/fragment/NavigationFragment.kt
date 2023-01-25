@@ -23,18 +23,30 @@ import io.reactivex.rxjava3.subjects.BehaviorSubject
 import java.lang.Exception
 import java.lang.ref.WeakReference
 
-//@AndroidEntryPoint
+/**
+ * A fragment that mimics UINavigationController for iOS, with modal presentation capability
+ */
 open class NavigationFragment : DialogFragment() {
-    var isModal: Boolean = false
-        protected set
-
     private val _currentFragment = BehaviorSubject.create<KBYFragment>()
     private val _currentPosition = BehaviorSubject.createDefault(0)
     private var binding: FragmentNavigationBinding? = null
 
+    /**
+     * Read-only property to determine if the view is being presented as a modal
+     */
+    var isModal: Boolean = false
+        protected set
+
+    /**
+     * Read-only property for the initial fragment in the navigation controller's backstack
+     */
     var rootFragment: KBYFragment? = null
         protected set
 
+    /**
+     * Read/write property list of fragments in the navigation controller's backstack with 0 index
+     * being first in the backstack
+     */
     var fragments: List<KBYFragment>
         get() = childFragmentManager.fragments.toList().filterIsInstance(KBYFragment::class.java)
         set(value) {
@@ -127,10 +139,21 @@ open class NavigationFragment : DialogFragment() {
         }
     }
 
+    /**
+     * A method that returns an RxObservable for the top-most fragment in the navigation
+     * controller's backstack along with its position index
+     */
     fun observeCurrentFragmentWithPosition(): Observable<Pair<Int, KBYFragment>> {
         return Observables.zip(_currentPosition, _currentFragment)
     }
 
+    /**
+     * Pushes a new fragment onto the navigation controller's backstack.
+     *
+     * @param fragment a KYBFragment to add to the backstack
+     * @param animated property to animate the transition of the new fragment to replace the
+     * existing fragment. Default value is true
+     */
     fun pushFragment(fragment: KBYFragment, animated: Boolean = true) {
         fragment.navigationController = WeakReference(this@NavigationFragment)
         val identifier = fragment.backstackIdentifier
@@ -152,14 +175,26 @@ open class NavigationFragment : DialogFragment() {
         }
     }
 
+    /**
+     * Pops the top most fragment from the navigation controller's backstack.
+     */
     fun pop() {
         childFragmentManager.popBackStack()
     }
 
+    /**
+     * Pops the top most fragment from the backstack until it finds the fragment with the
+     * designated identifier
+     *
+     * @param identifier The unique ID for the fragment that was previously pushed onto the backstack
+     */
     fun popToIdentifier(identifier: String) {
         childFragmentManager.popBackStack(identifier, 0)
     }
 
+    /**
+     * Pops to the bottom most fragment in the backstack
+     */
     fun popToRootFragment() {
         childFragmentManager.popBackStack(rootFragment?.backstackIdentifier, 0)
     }
@@ -254,50 +289,73 @@ open class NavigationFragment : DialogFragment() {
         }
     }
 
-    protected fun getModalInstance(rootFragment: KBYFragment?): NavigationFragment {
+    /**
+     * Convenience method for subclassing a modal instance of the [NavigationFragment]
+     *
+     * @param rootFragment the fragment to set as the root
+     * @param bundle a bundle for passing extra data to the navigation controller when subclassing
+     */
+    protected fun getModalInstance(rootFragment: KBYFragment?, bundle: Bundle? = null): NavigationFragment {
         return this.apply {
-            arguments = rootFragment?.arguments?.apply {
-                putBoolean(IS_MODAL_NAVIGATION_FRAGMENT_KEY, true)
-                putString(ROOT_FRAGMENT_CLASS_NAME_KEY, rootFragment.javaClass.name)
-            } ?: bundleOf(
-                IS_MODAL_NAVIGATION_FRAGMENT_KEY to true,
-                ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment?.javaClass?.name
-            )
+            arguments = combinedBundle(true, rootFragment, bundle)
         }
     }
 
-    protected fun getInstance(rootFragment: KBYFragment?): NavigationFragment {
+    /**
+     * Convenience method for subclassing a non-modal instance of the [NavigationFragment]
+     *
+     * @param rootFragment the fragment to set as the root
+     * @param bundle a bundle for passing extra data to the navigation controller when subclassing
+     */
+    protected fun getInstance(rootFragment: KBYFragment?, bundle: Bundle? = null): NavigationFragment {
         return this.apply {
-            arguments = rootFragment?.arguments?.apply {
-                putString(ROOT_FRAGMENT_CLASS_NAME_KEY, rootFragment.javaClass.name)
-            } ?: bundleOf(ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment?.javaClass?.name)
+            arguments = combinedBundle(false, rootFragment, bundle)
         }
     }
 
     companion object {
+        /**
+         * Key for getting the root fragment's javaClass.name value from the bundle after creation
+         */
         const val ROOT_FRAGMENT_CLASS_NAME_KEY = "${BuildConfig.LIBRARY_PACKAGE_NAME}.rootFragmentClassNameKey"
+
+        /**
+         * Key for getting the modal presentation value after creation
+         */
         const val IS_MODAL_NAVIGATION_FRAGMENT_KEY = "${BuildConfig.LIBRARY_PACKAGE_NAME}.isModalNavigationFragmentKey"
 
-        fun getModalInstance(rootFragment: KBYFragment?): NavigationFragment {
-            val retval = NavigationFragment().apply {
-                arguments = rootFragment?.arguments?.apply {
-                    putBoolean(IS_MODAL_NAVIGATION_FRAGMENT_KEY, true)
-                    putString(ROOT_FRAGMENT_CLASS_NAME_KEY, rootFragment.javaClass.name)
-                } ?: bundleOf(
-                    IS_MODAL_NAVIGATION_FRAGMENT_KEY to true,
-                    ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment?.javaClass?.name
-                )
-            }
-            return retval
+        /**
+         * Convenience method for creating a modal instance of the [NavigationFragment]
+         *
+         * @param rootFragment the fragment to set as the root
+         * @param bundle a bundle for passing extra data to the navigation controller when subclassing
+         */
+        fun getModalInstance(rootFragment: KBYFragment?, bundle: Bundle? = null): NavigationFragment {
+            return NavigationFragment().getModalInstance(rootFragment, bundle)
         }
 
-        fun getInstance(rootFragment: KBYFragment?): NavigationFragment {
-            val retval = NavigationFragment().apply {
-                arguments = rootFragment?.arguments?.apply {
-                    putString(ROOT_FRAGMENT_CLASS_NAME_KEY, rootFragment.javaClass.name)
-                } ?: bundleOf(ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment?.javaClass?.name)
+        /**
+         * Convenience method for creating a non-modal instance of the [NavigationFragment]
+         *
+         * @param rootFragment the fragment to set as the root
+         * @param bundle a bundle for passing extra data to the navigation controller when subclassing
+         */
+        fun getInstance(rootFragment: KBYFragment?, bundle: Bundle? = null): NavigationFragment {
+            return NavigationFragment().getInstance(rootFragment, bundle)
+        }
+
+        private fun combinedBundle(isModal: Boolean, rootFragment: KBYFragment?, bundle: Bundle?): Bundle {
+            val rootFragmentBundle = rootFragment?.arguments ?: bundleOf()
+            val extraBundle = bundle ?: bundleOf()
+            return rootFragmentBundle.apply {
+                putAll(extraBundle)
+                putAll(
+                    bundleOf(
+                        IS_MODAL_NAVIGATION_FRAGMENT_KEY to isModal,
+                        ROOT_FRAGMENT_CLASS_NAME_KEY to rootFragment?.javaClass?.name
+                    )
+                )
             }
-            return retval
         }
     }
 }
