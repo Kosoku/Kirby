@@ -43,6 +43,8 @@ class FragmentC : KBYFragment() {
             }
         }
 
+        navigationController?.get()?.setNavigationBarHidden(true)
+
         return binding?.root
     }
 

@@ -7,12 +7,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.MaterialToolbar
 import com.kosoku.kirby.BuildConfig
 import com.kosoku.kirby.R
 import com.kosoku.kirby.databinding.FragmentNavigationBinding
@@ -52,6 +56,24 @@ open class NavigationFragment : DialogFragment() {
         set(value) {
             replaceFragments(value)
         }
+
+    /**
+     * Read-only property to get the [AppBarLayout] container for the navigation bar
+     */
+    val appBarLayout: AppBarLayout?
+        get() = binding?.appBarLayout
+
+    /**
+     * Read-only property to get the [MaterialToolbar] contained in the [appBarLayout]
+     */
+    val appBarToolbar: MaterialToolbar?
+        get() = binding?.toolbar
+
+    /**
+     * Read-only property to get the visibility state of the navigation bar
+     */
+    val isNavigationBarHidden: Boolean
+        get() = appBarLayout?.isVisible == false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -140,6 +162,13 @@ open class NavigationFragment : DialogFragment() {
     }
 
     /**
+     * Sets whether the navigation bar is hidden
+     */
+    fun setNavigationBarHidden(hidden: Boolean) {
+        appBarLayout?.isVisible = !hidden
+    }
+
+    /**
      * A method that returns an RxObservable for the top-most fragment in the navigation
      * controller's backstack along with its position index
      */
@@ -155,6 +184,7 @@ open class NavigationFragment : DialogFragment() {
      * existing fragment. Default value is true
      */
     fun pushFragment(fragment: KBYFragment, animated: Boolean = true) {
+        setNavigationBarHidden(false)
         fragment.navigationController = WeakReference(this@NavigationFragment)
         val identifier = fragment.backstackIdentifier
         binding?.contentContainer?.id?.let { container ->
@@ -179,6 +209,7 @@ open class NavigationFragment : DialogFragment() {
      * Pops the top most fragment from the navigation controller's backstack.
      */
     fun pop() {
+        setNavigationBarHidden(false)
         childFragmentManager.popBackStack()
     }
 
@@ -189,6 +220,7 @@ open class NavigationFragment : DialogFragment() {
      * @param identifier The unique ID for the fragment that was previously pushed onto the backstack
      */
     fun popToIdentifier(identifier: String) {
+        setNavigationBarHidden(false)
         childFragmentManager.popBackStack(identifier, 0)
     }
 
@@ -196,10 +228,12 @@ open class NavigationFragment : DialogFragment() {
      * Pops to the bottom most fragment in the backstack
      */
     fun popToRootFragment() {
+        setNavigationBarHidden(false)
         childFragmentManager.popBackStack(rootFragment?.backstackIdentifier, 0)
     }
 
     private fun replaceFragments(fragments: List<KBYFragment>) {
+        setNavigationBarHidden(false)
         childFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         for (fragment in fragments) {
             pushFragment(fragment, false)
@@ -285,7 +319,7 @@ open class NavigationFragment : DialogFragment() {
 
     private fun handleBack() {
         if (childFragmentManager.backStackEntryCount > 1) {
-            childFragmentManager.popBackStack()
+            pop()
         }
     }
 
