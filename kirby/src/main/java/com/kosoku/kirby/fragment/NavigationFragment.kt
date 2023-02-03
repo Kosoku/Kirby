@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
@@ -15,6 +14,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.kosoku.kirby.BuildConfig
@@ -31,8 +33,18 @@ import java.lang.ref.WeakReference
  * A fragment that mimics UINavigationController for iOS, with modal presentation capability
  */
 open class NavigationFragment : DialogFragment() {
-    private val _currentFragment = BehaviorSubject.create<KBYFragment>()
-    private val _currentPosition = BehaviorSubject.createDefault(0)
+    /**
+     * Data class model representing a [KBYFragment] and its position in the backstack
+     */
+    data class FragmentWithPosition(
+        val fragment: KBYFragment,
+        val position: Int
+    )
+
+    private val _currentFragmentRx = BehaviorSubject.create<KBYFragment>()
+    private val _currentPositionRx = BehaviorSubject.createDefault(-1)
+    private val _currentFragment: MutableLiveData<KBYFragment> by lazy { MutableLiveData() }
+    private val _currentPosition: MutableLiveData<Int> by lazy { MutableLiveData(-1) }
     private var binding: FragmentNavigationBinding? = null
 
     /**
@@ -75,6 +87,25 @@ open class NavigationFragment : DialogFragment() {
     val isNavigationBarHidden: Boolean
         get() = appBarLayout?.isVisible == false
 
+    /**
+     * A [LiveData<FragmentWithPosition>] property for observing changes in the top-level fragment
+     * and its position on the backstack
+     */
+    val currentFragmentWithPosition: LiveData<FragmentWithPosition>
+        get() {
+
+            val retval = MediatorLiveData<FragmentWithPosition>()
+
+            retval.addSource(_currentFragment) {
+                retval.postValue(combineFragmentAndPosition(_currentFragment, _currentPosition))
+            }
+            retval.addSource(_currentPosition) {
+                retval.postValue(combineFragmentAndPosition(_currentFragment, _currentPosition))
+            }
+
+            return retval
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -101,8 +132,9 @@ open class NavigationFragment : DialogFragment() {
             childFragmentManager.fragments.lastOrNull()?.let {
                 postCurrentFragment(it)
             }
-            val stackCount = childFragmentManager.backStackEntryCount
-            _currentPosition.onNext(stackCount)
+            val stackCount = childFragmentManager.backStackEntryCount - 1
+            _currentPositionRx.onNext(stackCount)
+            _currentPosition.postValue(stackCount)
             updateNavBar()
         }
     }
@@ -172,8 +204,10 @@ open class NavigationFragment : DialogFragment() {
      * A method that returns an RxObservable for the top-most fragment in the navigation
      * controller's backstack along with its position index
      */
+    @Deprecated("This method will be moved to KirbyRxExtensions library in the future. " +
+            "Consider using [currentFragmentWithPosition] [LiveData] object instead.")
     fun observeCurrentFragmentWithPosition(): Observable<Pair<Int, KBYFragment>> {
-        return Observables.zip(_currentPosition, _currentFragment)
+        return Observables.zip(_currentPositionRx, _currentFragmentRx)
     }
 
     /**
@@ -232,6 +266,17 @@ open class NavigationFragment : DialogFragment() {
         childFragmentManager.popBackStack(rootFragment?.backstackIdentifier, 0)
     }
 
+    private fun combineFragmentAndPosition(fragment: LiveData<KBYFragment>, position: LiveData<Int>): FragmentWithPosition? {
+        val fragmentValue = fragment.value
+        val positionValue = position.value
+
+        return if (fragmentValue == null || positionValue == null) {
+            null
+        } else {
+            FragmentWithPosition(fragmentValue, positionValue)
+        }
+    }
+
     private fun replaceFragments(fragments: List<KBYFragment>) {
         setNavigationBarHidden(false)
         childFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
@@ -242,9 +287,10 @@ open class NavigationFragment : DialogFragment() {
     }
 
     private fun postCurrentFragment(fragment: Fragment) {
-        if (fragment == _currentFragment.value) { return }
+        if (fragment == _currentFragmentRx.value) { return }
         if (fragment is KBYFragment) {
-            _currentFragment.onNext(fragment)
+            _currentFragmentRx.onNext(fragment)
+            _currentFragment.postValue(fragment)
         }
     }
 

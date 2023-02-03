@@ -29,6 +29,7 @@ abstract class KBYFragment : DialogFragment() {
     /**
      * RxCompositeDisposable for handling cleanup of Rx streams
      */
+    @Deprecated("This property will be moved to KirbyRxExtensions in the future.")
     open val disposables: CompositeDisposable by lazy { CompositeDisposable() }
 
     /**

@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import com.kosoku.demo.databinding.FragmentABinding
+import com.kosoku.kirby.extension.dismissRecursively
+import com.kosoku.kirby.extension.presentingFragment
 import com.kosoku.kirby.extension.setDebounceOnClickListener
 import com.kosoku.kirby.fragment.KBYFragment
 import timber.log.Timber
@@ -21,11 +23,6 @@ class FragmentC : KBYFragment() {
         passedValue = arguments?.getString(PASSED_STRING_KEY)
     }
 
-    override fun onStart() {
-        super.onStart()
-        Timber.d("DEBUG: Fragment C onStart called")
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -35,15 +32,8 @@ class FragmentC : KBYFragment() {
 
         (binding as? FragmentABinding)?.textView?.text = passedValue ?: "NO VALUE"
         (binding as? FragmentABinding)?.textView?.setDebounceOnClickListener {
-            navigationController?.get()?.let { navController ->
-                navController.fragments = listOf(
-                    FragmentA.getInstance("Fragment A"),
-                    FragmentB.getInstance("Fragment B"),
-                )
-            }
+            dismissRecursively()
         }
-
-        navigationController?.get()?.setNavigationBarHidden(true)
 
         return binding?.root
     }

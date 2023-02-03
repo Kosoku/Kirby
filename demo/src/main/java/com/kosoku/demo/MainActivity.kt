@@ -8,6 +8,7 @@ import com.kosoku.demo.databinding.ActivityMainBinding
 import com.kosoku.kirby.extension.setDebounceOnClickListener
 import com.kosoku.kirby.fragment.NavigationFragment
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import java.util.*
 
 @AndroidEntryPoint
@@ -27,7 +28,7 @@ class MainActivity : AppCompatActivity() {
             }
 
         binding.containerView.setDebounceOnClickListener {
-            CustomNavigationFragment.getModalInstance(FragmentA.getInstance("Fragment A"), "This is a test").show(supportFragmentManager, UUID.randomUUID().toString())
+            NavigationFragment.getModalInstance(FragmentA.getInstance("Fragment A")).show(supportFragmentManager, UUID.randomUUID().toString())
         }
     }
 }

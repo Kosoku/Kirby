@@ -23,11 +23,6 @@ class FragmentA : KBYFragment() {
         passedValue = arguments?.getString(PASSED_STRING_KEY)
     }
 
-    override fun onStart() {
-        super.onStart()
-        Timber.d("DEBUG: Fragment A onStart called")
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -37,7 +32,7 @@ class FragmentA : KBYFragment() {
 
         (binding as? FragmentABinding)?.textView?.text = passedValue
         (binding as? FragmentABinding)?.textView?.setDebounceOnClickListener {
-            navigationController?.get()?.pushFragment(FragmentC.getInstance("Fragment C"))
+            FragmentB.getModalInstance("Fragment B").show(childFragmentManager, UUID.randomUUID().toString())
         }
 
         return binding?.root
