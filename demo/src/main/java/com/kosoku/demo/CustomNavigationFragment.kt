@@ -16,7 +16,7 @@ class CustomNavigationFragment : NavigationFragment() {
     companion object {
         private const val PASSED_STRING_KEY = "PASSED_STRING_KEY.CustomNavigationFragment"
 
-        fun getModalInstance(rootFragment: KBYFragment, passedString: String): CustomNavigationFragment {
+        fun getModalInstance(rootFragment: KBYFragment<*>, passedString: String): CustomNavigationFragment {
             return CustomNavigationFragment().getModalInstance(rootFragment, bundleOf(PASSED_STRING_KEY to passedString)) as CustomNavigationFragment
         }
     }

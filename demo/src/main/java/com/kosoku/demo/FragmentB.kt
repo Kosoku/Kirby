@@ -13,7 +13,7 @@ import com.kosoku.kirby.fragment.NavigationFragment
 import timber.log.Timber
 import java.util.*
 
-class FragmentB : KBYFragment() {
+class FragmentB : KBYFragment<FragmentABinding>() {
     private var passedValue: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

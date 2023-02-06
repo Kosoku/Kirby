@@ -37,13 +37,13 @@ open class NavigationFragment : DialogFragment() {
      * Data class model representing a [KBYFragment] and its position in the backstack
      */
     data class FragmentWithPosition(
-        val fragment: KBYFragment,
+        val fragment: KBYFragment<*>,
         val position: Int
     )
 
-    private val _currentFragmentRx = BehaviorSubject.create<KBYFragment>()
+    private val _currentFragmentRx = BehaviorSubject.create<KBYFragment<*>>()
     private val _currentPositionRx = BehaviorSubject.createDefault(-1)
-    private val _currentFragment: MutableLiveData<KBYFragment> by lazy { MutableLiveData() }
+    private val _currentFragment: MutableLiveData<KBYFragment<*>> by lazy { MutableLiveData() }
     private val _currentPosition: MutableLiveData<Int> by lazy { MutableLiveData(-1) }
     private var binding: FragmentNavigationBinding? = null
 
@@ -56,14 +56,14 @@ open class NavigationFragment : DialogFragment() {
     /**
      * Read-only property for the initial fragment in the navigation controller's backstack
      */
-    var rootFragment: KBYFragment? = null
+    var rootFragment: KBYFragment<*>? = null
         protected set
 
     /**
      * Read/write property list of fragments in the navigation controller's backstack with 0 index
      * being first in the backstack
      */
-    var fragments: List<KBYFragment>
+    var fragments: List<KBYFragment<*>>
         get() = childFragmentManager.fragments.toList().filterIsInstance(KBYFragment::class.java)
         set(value) {
             replaceFragments(value)
@@ -118,7 +118,7 @@ open class NavigationFragment : DialogFragment() {
         arguments?.let { args ->
             args.getString(ROOT_FRAGMENT_CLASS_NAME_KEY)?.let { fragmentName ->
                 try {
-                    rootFragment = parentFragmentManager.fragmentFactory.instantiate(ClassLoader.getSystemClassLoader(), fragmentName) as? KBYFragment
+                    rootFragment = parentFragmentManager.fragmentFactory.instantiate(ClassLoader.getSystemClassLoader(), fragmentName) as? KBYFragment<*>
                     rootFragment?.let {
                         it.arguments = arguments
                     }
@@ -206,7 +206,7 @@ open class NavigationFragment : DialogFragment() {
      */
     @Deprecated("This method will be moved to KirbyRxExtensions library in the future. " +
             "Consider using [currentFragmentWithPosition] [LiveData] object instead.")
-    fun observeCurrentFragmentWithPosition(): Observable<Pair<Int, KBYFragment>> {
+    fun observeCurrentFragmentWithPosition(): Observable<Pair<Int, KBYFragment<*>>> {
         return Observables.zip(_currentPositionRx, _currentFragmentRx)
     }
 
@@ -217,7 +217,7 @@ open class NavigationFragment : DialogFragment() {
      * @param animated property to animate the transition of the new fragment to replace the
      * existing fragment. Default value is true
      */
-    fun pushFragment(fragment: KBYFragment, animated: Boolean = true) {
+    fun pushFragment(fragment: KBYFragment<*>, animated: Boolean = true) {
         setNavigationBarHidden(false)
         fragment.navigationController = WeakReference(this@NavigationFragment)
         val identifier = fragment.backstackIdentifier
@@ -266,7 +266,7 @@ open class NavigationFragment : DialogFragment() {
         childFragmentManager.popBackStack(rootFragment?.backstackIdentifier, 0)
     }
 
-    private fun combineFragmentAndPosition(fragment: LiveData<KBYFragment>, position: LiveData<Int>): FragmentWithPosition? {
+    private fun combineFragmentAndPosition(fragment: LiveData<KBYFragment<*>>, position: LiveData<Int>): FragmentWithPosition? {
         val fragmentValue = fragment.value
         val positionValue = position.value
 
@@ -277,7 +277,7 @@ open class NavigationFragment : DialogFragment() {
         }
     }
 
-    private fun replaceFragments(fragments: List<KBYFragment>) {
+    private fun replaceFragments(fragments: List<KBYFragment<*>>) {
         setNavigationBarHidden(false)
         childFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         for (fragment in fragments) {
@@ -288,7 +288,7 @@ open class NavigationFragment : DialogFragment() {
 
     private fun postCurrentFragment(fragment: Fragment) {
         if (fragment == _currentFragmentRx.value) { return }
-        if (fragment is KBYFragment) {
+        if (fragment is KBYFragment<*>) {
             _currentFragmentRx.onNext(fragment)
             _currentFragment.postValue(fragment)
         }
@@ -319,7 +319,7 @@ open class NavigationFragment : DialogFragment() {
     }
 
     private fun updateNavBar() {
-        (childFragmentManager.fragments.lastOrNull() as? KBYFragment)?.let { currentFragment ->
+        (childFragmentManager.fragments.lastOrNull() as? KBYFragment<*>)?.let { currentFragment ->
             inflateMenu(currentFragment.menuResourceId)
             binding?.toolbar?.setDebounceMenuOnClickListener(onClickDebounce = currentFragment.menuOnClickListener)
 
@@ -375,7 +375,7 @@ open class NavigationFragment : DialogFragment() {
      * @param rootFragment the fragment to set as the root
      * @param bundle a bundle for passing extra data to the navigation controller when subclassing
      */
-    protected fun getModalInstance(rootFragment: KBYFragment?, bundle: Bundle? = null): NavigationFragment {
+    protected fun getModalInstance(rootFragment: KBYFragment<*>?, bundle: Bundle? = null): NavigationFragment {
         return this.apply {
             arguments = combinedBundle(true, rootFragment, bundle)
         }
@@ -387,7 +387,7 @@ open class NavigationFragment : DialogFragment() {
      * @param rootFragment the fragment to set as the root
      * @param bundle a bundle for passing extra data to the navigation controller when subclassing
      */
-    protected fun getInstance(rootFragment: KBYFragment?, bundle: Bundle? = null): NavigationFragment {
+    protected fun getInstance(rootFragment: KBYFragment<*>?, bundle: Bundle? = null): NavigationFragment {
         return this.apply {
             arguments = combinedBundle(false, rootFragment, bundle)
         }
@@ -410,7 +410,7 @@ open class NavigationFragment : DialogFragment() {
          * @param rootFragment the fragment to set as the root
          * @param bundle a bundle for passing extra data to the navigation controller when subclassing
          */
-        fun getModalInstance(rootFragment: KBYFragment?, bundle: Bundle? = null): NavigationFragment {
+        fun getModalInstance(rootFragment: KBYFragment<*>?, bundle: Bundle? = null): NavigationFragment {
             return NavigationFragment().getModalInstance(rootFragment, bundle)
         }
 
@@ -420,11 +420,11 @@ open class NavigationFragment : DialogFragment() {
          * @param rootFragment the fragment to set as the root
          * @param bundle a bundle for passing extra data to the navigation controller when subclassing
          */
-        fun getInstance(rootFragment: KBYFragment?, bundle: Bundle? = null): NavigationFragment {
+        fun getInstance(rootFragment: KBYFragment<*>?, bundle: Bundle? = null): NavigationFragment {
             return NavigationFragment().getInstance(rootFragment, bundle)
         }
 
-        private fun combinedBundle(isModal: Boolean, rootFragment: KBYFragment?, bundle: Bundle?): Bundle {
+        private fun combinedBundle(isModal: Boolean, rootFragment: KBYFragment<*>?, bundle: Bundle?): Bundle {
             val rootFragmentBundle = rootFragment?.arguments ?: bundleOf()
             val extraBundle = bundle ?: bundleOf()
             return rootFragmentBundle.apply {

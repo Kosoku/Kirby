@@ -14,7 +14,7 @@ import com.kosoku.kirby.fragment.KBYFragment
 import timber.log.Timber
 import java.lang.ref.WeakReference
 
-class FragmentC : KBYFragment() {
+class FragmentC : KBYFragment<FragmentABinding>() {
     private var passedValue: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

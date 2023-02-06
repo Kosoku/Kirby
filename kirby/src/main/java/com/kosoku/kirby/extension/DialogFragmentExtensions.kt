@@ -44,15 +44,15 @@ fun DialogFragment.dismissRecursively() {
     var parent: DialogFragment? = this.presentingFragment() as? DialogFragment
 
     while (parent != null) {
-        if ((parent as? KBYFragment)?.isModal == true || (parent.parentFragment as? NavigationFragment)?.isModal == true) {
+        if ((parent as? KBYFragment<*>)?.isModal == true || (parent.parentFragment as? NavigationFragment)?.isModal == true) {
             fragmentsToDismiss.add(parent)
         }
 
         val presenter = parent.presentingFragment()
-        if ((presenter as? KBYFragment)?.isModal == true || (presenter?.parentFragment as? NavigationFragment)?.isModal == true) {
+        if ((presenter as? KBYFragment<*>)?.isModal == true || (presenter?.parentFragment as? NavigationFragment)?.isModal == true) {
             parent = if (presenter is NavigationFragment && presenter.isModal) {
                 presenter
-            } else if (presenter is KBYFragment && presenter.isModal) {
+            } else if (presenter is KBYFragment<*> && presenter.isModal) {
                 presenter
             } else {
                 presenter.parentFragment as? DialogFragment

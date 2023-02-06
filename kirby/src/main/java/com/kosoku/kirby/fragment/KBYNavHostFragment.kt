@@ -20,13 +20,13 @@ class KBYNavHostFragment : NavHostFragment() {
      * Data class model representing a [KBYFragment] and its position in the backstack
      */
     data class FragmentWithPosition(
-        val fragment: KBYFragment,
+        val fragment: KBYFragment<*>,
         val position: Int
     )
 
-    private val currentFragment = BehaviorSubject.create<KBYFragment>()
+    private val currentFragment = BehaviorSubject.create<KBYFragment<*>>()
     private val currentPosition = BehaviorSubject.createDefault(-1)
-    private val _currentFragment: MutableLiveData<KBYFragment> by lazy { MutableLiveData() }
+    private val _currentFragment: MutableLiveData<KBYFragment<*>> by lazy { MutableLiveData() }
     private val _currentPosition: MutableLiveData<Int> by lazy { MutableLiveData(-1) }
 
     /**
@@ -55,7 +55,7 @@ class KBYNavHostFragment : NavHostFragment() {
      */
     @Deprecated("This method will be moved to KirbyRxExtensions library in the future. " +
             "Consider using [currentFragmentWithPosition] [LiveData] object instead.")
-    fun observeCurrentFragmentWithPosition(): Observable<Pair<Int, KBYFragment>> {
+    fun observeCurrentFragmentWithPosition(): Observable<Pair<Int, KBYFragment<*>>> {
         return Observables.zip(currentPosition, currentFragment)
     }
 
@@ -80,13 +80,13 @@ class KBYNavHostFragment : NavHostFragment() {
 
     private fun postCurrentFragment(fragment: Fragment) {
         if (fragment == currentFragment.value) { return }
-        if (fragment is KBYFragment) {
+        if (fragment is KBYFragment<*>) {
             currentFragment.onNext(fragment)
             _currentFragment.postValue(fragment)
         }
     }
 
-    private fun combineFragmentAndPosition(fragment: LiveData<KBYFragment>, position: LiveData<Int>): FragmentWithPosition? {
+    private fun combineFragmentAndPosition(fragment: LiveData<KBYFragment<*>>, position: LiveData<Int>): FragmentWithPosition? {
         val fragmentValue = fragment.value
         val positionValue = position.value
 

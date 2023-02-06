@@ -19,7 +19,7 @@ import java.util.*
  * a number of properties for use in tandem with [NavigationFragment] for handling backstack
  * navigation and screen title
  */
-abstract class KBYFragment : DialogFragment() {
+abstract class KBYFragment <T : ViewDataBinding> : DialogFragment() {
     /**
      * Read-only property to determine if the view is being presented as a modal
      */
@@ -70,7 +70,7 @@ abstract class KBYFragment : DialogFragment() {
     /**
      * View binding used by DataBindings
      */
-    open var binding: ViewDataBinding? = null
+    open var binding: T? = null
 
     /**
      * A weak reference to the containing [NavigationFragment]
@@ -130,7 +130,7 @@ abstract class KBYFragment : DialogFragment() {
      * @param bundle a bundle for passing extra data to the instance at creation
      * when subclassing
      */
-    protected fun getModalInstance(bundle: Bundle? = null): KBYFragment {
+    protected fun getModalInstance(bundle: Bundle? = null): KBYFragment<*> {
         return this.apply {
             arguments = bundle?.apply { putBoolean(IS_MODAL_KEY, true) } ?: bundleOf(IS_MODAL_KEY to true)
         }
@@ -142,7 +142,7 @@ abstract class KBYFragment : DialogFragment() {
      * @param bundle a bundle for passing extra data to the instance at creation
      * when subclassing
      */
-    protected fun getInstance(bundle: Bundle? = null): KBYFragment {
+    protected fun getInstance(bundle: Bundle? = null): KBYFragment<*> {
         return this.apply { arguments = bundle }
     }
 
