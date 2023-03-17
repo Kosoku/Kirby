@@ -27,5 +27,12 @@
             app:layout_constraintTop_toBottomOf="@id/app_bar_layout"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
+        <FrameLayout
+            android:id="@+id/touch_interceptor"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

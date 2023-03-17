@@ -82,6 +82,12 @@ open class NavigationFragment : DialogFragment() {
         get() = binding?.toolbar
 
     /**
+     * Transparent view overlay for intercepting touch events
+     */
+    val touchInterceptor: View?
+        get() = binding?.touchInterceptor
+
+    /**
      * Read-only property to get the visibility state of the navigation bar
      */
     val isNavigationBarHidden: Boolean
