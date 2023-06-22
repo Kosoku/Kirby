@@ -2,16 +2,10 @@ package com.kosoku.demo
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import com.kosoku.demo.databinding.ActivityMainBinding
-import com.kosoku.kirby.extension.setDebounceOnClickListener
-import com.kosoku.kirby.fragment.NavigationFragment
-import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 import java.util.*
 
-@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
@@ -20,15 +14,27 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        val rootFragment = NavigationFragment.getInstance(FragmentC.getInstance("Fragment C"))
-        supportFragmentManager.beginTransaction()
-            .apply {
-                replace(binding.containerView.id, rootFragment)
-                commit()
-            }
+        binding.buttonOne.setOnClickListener {
+            CustomNavigationFragment.getModalInstance(DestinationFragment.getInstance(1)).show(supportFragmentManager, UUID.randomUUID().toString())
+        }
 
-        binding.containerView.setDebounceOnClickListener {
-            NavigationFragment.getModalInstance(FragmentA.getInstance("Fragment A")).show(supportFragmentManager, UUID.randomUUID().toString())
+        binding.buttonTwo.setOnClickListener {
+            CustomNavigationFragment.getModalInstance(
+                listOf(
+                    DestinationFragment.getInstance(1),
+                    DestinationFragment.getInstance(2)
+                )
+            ).show(supportFragmentManager, UUID.randomUUID().toString())
+        }
+
+        binding.buttonThree.setOnClickListener {
+            CustomNavigationFragment.getModalInstance(
+                listOf(
+                    DestinationFragment.getInstance(1),
+                    DestinationFragment.getInstance(2),
+                    DestinationFragment.getInstance(3)
+                )
+            ).show(supportFragmentManager, UUID.randomUUID().toString())
         }
     }
 }

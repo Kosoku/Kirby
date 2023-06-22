@@ -287,7 +287,7 @@ open class NavigationFragment : DialogFragment() {
         setNavigationBarHidden(false)
         childFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         for (fragment in fragments) {
-            pushFragment(fragment, false)
+            pushFragment(fragment, true)
         }
         rootFragment = fragments.firstOrNull()
     }

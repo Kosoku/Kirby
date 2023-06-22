@@ -9,6 +9,7 @@ class AppFragmentFactory : FragmentFactory() {
             FragmentA::class.java.name -> FragmentA()
             FragmentB::class.java.name -> FragmentB()
             FragmentC::class.java.name -> FragmentC()
+            DestinationFragment::class.java.name -> DestinationFragment()
             else -> super.instantiate(classLoader, className)
         }
     }

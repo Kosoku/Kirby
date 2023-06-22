@@ -32,7 +32,11 @@ class FragmentB : KBYFragment<FragmentABinding>() {
         (binding as? FragmentABinding)?.let { viewBinding ->
             viewBinding.textView.text = passedValue
             viewBinding.textView.setDebounceOnClickListener {
-                NavigationFragment.getModalInstance(FragmentC.getInstance("Fragment C")).show(childFragmentManager, UUID.randomUUID().toString())
+                navigationController?.get()?.fragments = listOf(
+                    FragmentA.getInstance("first fragment A"),
+                    FragmentA.getInstance("second fragment A"),
+                    FragmentA.getInstance("third fragment A")
+                )
             }
         }
 
